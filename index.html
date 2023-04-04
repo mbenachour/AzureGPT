@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AzureGPT </title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        #description {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            resize: none;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #3498db;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #resultArea {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            max-height: 300px; /* Set a maximum height for the result area */
+            overflow-y: auto;  /* Provide a scrollbar if the content overflows vertically */
+        }
+        .success {
+            color: #28a745;
+        }
+        .error {
+            color: #dc3545;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AzureGPT</h1>
+        <form id="azureForm">
+            <textarea id="description" rows="4" placeholder="Enter description of Azure cloud environment"></textarea><br>
+            <button type="button" onclick="submitForm()">Submit</button>
+        </form>
+        <div id="resultArea" class="hidden"></div>
+    </div>
+
+    <script>
+        function submitForm() {
+            const description = document.getElementById("description").value;
+            const resultArea = document.getElementById("resultArea");
+            resultArea.innerHTML = '';
+            resultArea.classList.add("hidden");
+
+            // Call the backend service running on port 8081
+            fetch('http://localhost:8081/azure', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description: description })
+            })
+            .then(response => response.json())
+            .then(data => {
+                resultArea.innerHTML = data.message;
+                resultArea.classList.remove("hidden");
+                resultArea.className = data.message.startsWith("Error") ? "error" : "success";
+            })
+            .catch(error => {
+                resultArea.innerHTML = 'Error: ' + error.message;
+                resultArea.classList.remove("hidden");
+                resultArea.className = "error";
+            });
+        }
+    </script>
+</body>
+</html>
